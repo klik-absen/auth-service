@@ -1,6 +1,8 @@
 package service
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"ka-auth-service/internal/domain/entity"
@@ -19,6 +21,17 @@ func NewAuthService(userRepo repository.UserRepository, userSessionRepo reposito
 	}
 }
 
+func hashPassword(password string) string {
+	// compute the SHA-256 hash
+	hash := sha256.New()
+	hash.Write([]byte(password))
+	hashedPassword := hash.Sum(nil)
+
+	// convert the hash to a hex string
+	hashHex := hex.EncodeToString(hashedPassword)
+	return hashHex
+}
+
 func (s *AuthService) Authenticate(email, password string) (*entity.User, error) {
 	user, err := s.userRepo.GetUserByEmail(email)
 
@@ -27,8 +40,12 @@ func (s *AuthService) Authenticate(email, password string) (*entity.User, error)
 		return nil, errors.New("user not found")
 	}
 
+	// hash password
+	hashedPassword := hashPassword(password)
+	fmt.Printf("hashedPassword: %v", hashedPassword)
+
 	// validate password
-	if user.Password != password {
+	if user.Password != hashedPassword {
 		return nil, errors.New("incorrect password")
 	}
 
