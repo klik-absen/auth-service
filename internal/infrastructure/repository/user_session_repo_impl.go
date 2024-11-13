@@ -44,12 +44,6 @@ func (r *UserSessionRepoImpl) UpdateLastAccessed(userID int) error {
 	return err
 }
 
-func (r *UserSessionRepoImpl) UpdateStatusExpired(userID int) error {
-	query := "UPDATE public.user_session SET status = 'Expired' WHERE user_id = $1"
-	_, err := r.db.Exec(query, userID)
-	return err
-}
-
 func (r *UserSessionRepoImpl) Delete(userID int) error {
 	query := "DELETE FROM public.user_session WHERE user_id = $1"
 	_, err := r.db.Exec(query, userID)
