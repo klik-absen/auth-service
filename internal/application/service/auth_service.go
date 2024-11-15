@@ -12,12 +12,14 @@ import (
 type AuthService struct {
 	userRepo        repository.UserRepository
 	userSessionRepo repository.UserSessionRepository
+	employeeRepo    repository.EmployeeRepository
 }
 
-func NewAuthService(userRepo repository.UserRepository, userSessionRepo repository.UserSessionRepository) *AuthService {
+func NewAuthService(userRepo repository.UserRepository, userSessionRepo repository.UserSessionRepository, employeeRepo repository.EmployeeRepository) *AuthService {
 	return &AuthService{
 		userRepo:        userRepo,
 		userSessionRepo: userSessionRepo,
+		employeeRepo:    employeeRepo,
 	}
 }
 
@@ -42,7 +44,6 @@ func (s *AuthService) Authenticate(email, password string) (*entity.User, error)
 
 	// hash password
 	hashedPassword := hashPassword(password)
-	fmt.Printf("hashedPassword: %v", hashedPassword)
 
 	// validate password
 	if user.Password != hashedPassword {
@@ -106,4 +107,12 @@ func (s *AuthService) CreateUserSession(userID int, sessionToken string) error {
 	}
 
 	return nil
+}
+
+func (s *AuthService) GetEmployeeIDByEmail(email string) (*entity.Employee, error) {
+	employee, err := s.employeeRepo.GetEmployeeIDByEmail(email)
+	if err != nil {
+		return nil, errors.New("employee not found")
+	}
+	return employee, nil
 }

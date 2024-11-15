@@ -121,7 +121,8 @@ func main() {
 
 	userRepo := repository.NewUserRepoImpl(dbConn)
 	userSessionRepo := repository.NewUserSessionRepoImpl(dbConn)
-	authService := service.NewAuthService(userRepo, userSessionRepo)
+	employeeRepo := repository.NewEmployeeRepoImpl(dbConn)
+	authService := service.NewAuthService(userRepo, userSessionRepo, employeeRepo)
 	authController := controller.NewAuthController(authService)
 
 	r := gin.New()

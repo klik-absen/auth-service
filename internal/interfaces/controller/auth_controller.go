@@ -25,7 +25,7 @@ func NewAuthController(authService *service.AuthService) *AuthController {
 func (c *AuthController) Authentication(ctx *gin.Context) {
 	var req dto.AuthRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, response.NewResponse(http.StatusBadRequest, "Invalid request payload", nil))
+		ctx.JSON(http.StatusBadRequest, response.NewResponse(http.StatusBadRequest, "invalid request payload", nil))
 		return
 	}
 
@@ -34,6 +34,11 @@ func (c *AuthController) Authentication(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, response.NewResponse(http.StatusBadRequest, err.Error(), nil))
 		return
+	}
+
+	employee, err := c.authService.GetEmployeeIDByEmail(req.Email)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, response.NewResponse(http.StatusBadRequest, err.Error(), nil))
 	}
 
 	// generate session token
@@ -47,11 +52,12 @@ func (c *AuthController) Authentication(ctx *gin.Context) {
 
 	// create dto
 	authResponse := dto.AuthResponse{
-		Email: req.Email,
-		Token: sessionToken,
+		Email:      req.Email,
+		Token:      sessionToken,
+		EmployeeID: employee.ID,
 	}
 
-	ctx.JSON(http.StatusOK, response.NewResponse(http.StatusOK, "Authentication successfully", authResponse))
+	ctx.JSON(http.StatusOK, response.NewResponse(http.StatusOK, "authentication successfully", authResponse))
 }
 
 func generateToken(email string) string {
